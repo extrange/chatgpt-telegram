@@ -1,0 +1,10 @@
+services:
+  chatgpt:
+    container_name: chatgpt
+    build: .
+    restart: always
+    volumes:
+      - .:/src
+    command: python3 /src/bot.py
+    environment:
+      TZ: Asia/Singapore
