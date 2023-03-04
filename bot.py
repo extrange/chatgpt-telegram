@@ -31,9 +31,9 @@ app = Client("my_account")
 llm = OpenAIChat(temperature=0.2)
 memory = ConversationBufferWindowMemory(k=5)
 template = (
-    "The current location is Singapore and the date and time is "
+    "You are an AI. Answer as comprehensively as possible. The current location is Singapore and the date and time is "
     + datetime.now(tz=ZoneInfo("Asia/Singapore")).strftime("%c %z")
-    + ". Answer as concisely as possible.\n\n{history}\n\n Human: {human_input}\nAI:"
+    + ". \n\n{history}\n\n Human: {human_input}\nAI:"
 )
 
 prompt = PromptTemplate(input_variables=["history", "human_input"], template=template)
@@ -54,6 +54,8 @@ async def handle_clear(client, message: Message):
 
 @app.on_message(filters.text)
 async def handle_text(client, message: Message):
+    if message.from_user.is_self:
+        return
     logger.info(f"Message received: {message.text}")
     response = chatgpt_chain.predict(human_input=message.text)
     await message.reply(response, quote=True)
