@@ -11,6 +11,8 @@ from langchain.llms import OpenAIChat
 from pyrogram import filters
 from pyrogram.client import Client
 from pyrogram.types import Message
+import openai
+from pydub import AudioSegment
 
 TZ = ZoneInfo("Asia/Singapore")
 
@@ -60,5 +62,15 @@ async def handle_text(client, message: Message):
     response = chatgpt_chain.predict(human_input=message.text)
     await message.reply(response, quote=True)
 
+@app.on_message(filters.voice)
+async def handle_voice(client, message: Message):
+    path = await message.download()
+    audio = AudioSegment.from_ogg(path)
+    audio.export(f"{path}.mp3", format='mp3')
+    with open(f"{path}.mp3", 'rb') as f:
+        text = openai.Audio.transcribe('whisper-1', f, language='en').get('text', '')
+        await message.reply(f"You asked: {text}")
+        response = chatgpt_chain.predict(human_input=text)
+        await message.reply(response, quote=True)
 
 app.run()

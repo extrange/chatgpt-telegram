@@ -6,3 +6,4 @@ python-dotenv
 tgcrypto
 transformers
 uvloop
+pydub
